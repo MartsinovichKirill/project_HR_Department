@@ -66,5 +66,30 @@ document.addEventListener('DOMContentLoaded', () => {
     if (alertsDiv.children.length === 0) {
       alertsDiv.innerHTML = '<p>Нет контрактов, истекающих в ближайший месяц.</p>';
     }
+  } 
+  // Вход админа
+const loginModal = document.getElementById('login-modal');
+const siteContent = document.getElementById('site-content');
+loginModal.style.display = 'flex';
+siteContent.classList.add('blur');
+const isAdminLoggedIn = sessionStorage.getItem('adminLoggedIn');
+if (isAdminLoggedIn) {
+  loginModal.style.display = 'none';
+  siteContent.classList.remove('blur');
+}
+const loginForm = document.getElementById('login-form');
+loginForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+
+  if (username === 'admin' && password === 'admin123') {
+    sessionStorage.setItem('adminLoggedIn', 'true');
+    loginModal.style.display = 'none';
+    siteContent.classList.remove('blur');
+    alert('Добро пожаловать, администратор!');
+  } else {
+    document.getElementById('login-error').textContent = 'Неверный логин или пароль';
   }
+});
 });

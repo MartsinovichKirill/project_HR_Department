@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Отдел кадров</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <div id="site-content">
+    <header>
+      <h1>Отдел кадров предприятия</h1>
+      <nav>
+        <a href="index.html">Главная</a>
+        <a href="employees.html">Сотрудники</a>
+        <a href="contracts.html">Контракты</a>
+      </nav>
+    </header>
+    <main>
+      <section>
+        <h2>Добро пожаловать</h2>
+        <p>Система отдела кадров позволяет просматривать сотрудников, добавлять и удалять их, а также проверять сроки контрактов.</p>
+      </section>
+    </main>
+    <footer>
+      <p>© 2025 Отдел кадров</p>
+    </footer>
+  </div>
+  <!-- Модальное окно администратора -->
+  <div id="login-modal" class="modal">
+  <div class="modal-content">
+    <h2>Вход администратора</h2>
+    <form id="login-form">
+      <input type="text" id="username" placeholder="Логин" required>
+      <input type="password" id="password" placeholder="Пароль" required>
+      <button type="submit">Войти</button>
+    </form>
+    <p id="login-error" style="color:red;"></p>
+  </div>
+</div>
+</body>
+
+</html>
+

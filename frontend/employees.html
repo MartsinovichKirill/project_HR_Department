@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Сотрудники — Отдел кадров</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Отдел кадров предприятия</h1>
+    <nav>
+      <a href="index.html">Главная</a>
+      <a href="employees.html">Сотрудники</a>
+      <a href="contracts.html">Контракты</a>
+    </nav>
+  </header>
+
+  <main id="main-content">
+    <section>
+      <h2>Сотрудники</h2>
+      <table id="employees-table">
+        <thead>
+          <tr>
+            <th>Ф.И.О.</th>
+            <th>Отдел</th>
+            <th>Должность</th>
+            <th>Дата начала</th>
+            <th>Дата окончания</th>
+            <th>Тип контракта</th>
+            <th>Действие</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Добавить сотрудника</h2>
+      <form id="add-form">
+        <input type="text" id="name" placeholder="Ф.И.О." required>
+        <input type="text" id="dept" placeholder="Отдел" required>
+        <input type="text" id="position" placeholder="Должность" required>
+        <input type="date" id="start" required>
+        <input type="date" id="end">
+        <select id="type" required>
+          <option value="договор">Договор</option>
+          <option value="контракт">Контракт</option>
+        </select>
+        <button type="submit">Добавить</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>Контракты, истекающие в ближайший месяц</h2>
+      <div id="contracts-alerts"></div>
+    </section>
+  </main>
+</body>
+</html>
+
