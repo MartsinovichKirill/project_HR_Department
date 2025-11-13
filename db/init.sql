@@ -1,11 +1,15 @@
+CREATE DATABASE hr_department;
+
+USE hr_department;
+
 CREATE TABLE employees (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    dept TEXT NOT NULL,
-    position TEXT NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    dept VARCHAR(255) NOT NULL,
+    position VARCHAR(255) NOT NULL,
     start_date DATE NOT NULL,
     end_date DATE,
-    contract_type TEXT CHECK(contract_type IN ('договор', 'контракт')) NOT NULL
+    contract_type ENUM('договор','контракт') NOT NULL
 );
 
 INSERT INTO employees (name, dept, position, start_date, end_date, contract_type) VALUES

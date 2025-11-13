@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Отчёты — Отдел кадров</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="script.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Отчёты отдела кадров</h1>
+    <nav>
+      <a href="index.html">Главная</a>
+      <a href="employees.html">Сотрудники</a>
+      <a href="contracts.html">Контракты</a>
+      <a href="reports.html">Отчёты</a>
+    </nav>
+  </header>
+
+  <main>
+    <section>
+      <h2>Формирование отчёта</h2>
+      <form id="report-form">
+        <label>Начальная дата:</label>
+        <input type="date" id="startDate" required>
+        <label>Конечная дата:</label>
+        <input type="date" id="endDate" required>
+        <button type="submit">Сформировать отчёт</button>
+      </form>
+    </section>
+
+    <section>
+      <h2>Результаты отчёта</h2>
+      <table id="report-table">
+        <thead>
+          <tr>
+            <th>Ф.И.О.</th>
+            <th>Отдел</th>
+            <th>Должность</th>
+            <th>Дата начала</th>
+            <th>Дата окончания</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 Отдел кадров предприятия</p>
+  </footer>
+</body>
+</html>

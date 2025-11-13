@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <title>Отдел кадров</title>
+  <title>Отдел кадров предприятия</title>
   <link rel="stylesheet" href="style.css">
   <script defer src="script.js"></script>
 </head>
@@ -14,31 +14,57 @@
         <a href="index.html">Главная</a>
         <a href="employees.html">Сотрудники</a>
         <a href="contracts.html">Контракты</a>
+        <a href="reports.html">Отчёты</a>
       </nav>
     </header>
+
     <main>
-      <section>
-        <h2>Добро пожаловать</h2>
-        <p>Система отдела кадров позволяет просматривать сотрудников, добавлять и удалять их, а также проверять сроки контрактов.</p>
+      <section class="hero">
+        <h2>Добро пожаловать в систему отдела кадров</h2>
+        <p>Здесь вы можете управлять сотрудниками, отслеживать сроки контрактов и формировать отчёты по кадрам предприятия.</p>
+      </section>
+
+      <section class="cards">
+        <div class="card">
+          <h3>Сотрудники</h3>
+          <p>Просмотр, добавление и удаление сотрудников предприятия.</p>
+          <a href="employees.html" class="btn">Перейти</a>
+        </div>
+
+        <div class="card">
+          <h3>Контракты</h3>
+          <p>Проверка сроков действия контрактов и договоров.</p>
+          <a href="contracts.html" class="btn">Открыть</a>
+        </div>
+
+        <div class="card">
+          <h3>Отчёты</h3>
+          <p>Формирование отчётов по сотрудникам за указанный период.</p>
+          <a href="reports.html" class="btn">Посмотреть</a>
+        </div>
       </section>
     </main>
+
     <footer>
-      <p>© 2025 Отдел кадров</p>
+      <p>© 2025 Отдел кадров предприятия</p>
     </footer>
   </div>
-  <!-- Модальное окно администратора -->
+
+  <!-- Модальное окно входа -->
   <div id="login-modal" class="modal">
-  <div class="modal-content">
-    <h2>Вход администратора</h2>
-    <form id="login-form">
-      <input type="text" id="username" placeholder="Логин" required>
-      <input type="password" id="password" placeholder="Пароль" required>
-      <button type="submit">Войти</button>
-    </form>
-    <p id="login-error" style="color:red;"></p>
+    <div class="modal-content">
+      <h2>Вход администратора</h2>
+      <form id="login-form">
+        <input type="text" id="username" placeholder="Логин" required>
+        <input type="password" id="password" placeholder="Пароль" required>
+        <button type="submit">Войти</button>
+      </form>
+      <p id="login-error" style="color:red;"></p>
+    </div>
   </div>
-</div>
 </body>
+</html>
+
 
 </html>
 
