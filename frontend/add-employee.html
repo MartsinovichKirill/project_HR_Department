@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Добавить сотрудника</title>
+  <link rel="stylesheet" href="style.css">
+  <script defer src="script.js"></script>
+</head>
+<body>
+<header>
+  <h1>Добавить сотрудника</h1>
+  <nav>
+    <a href="index.html">Главная</a>
+    <a href="employees.html">Сотрудники</a>
+    <a href="add-employee.html">Добавить сотрудника</a>
+    <a href="contracts.html">Контракты</a>
+    <a href="reports.html">Отчёты</a>
+  </nav>
+</header>
+
+<main>
+  <div class="form-wrapper">
+    <div class="form-header">
+      <h2>Новый сотрудник</h2>
+      <p>Заполните информацию для добавления</p>
+    </div>
+    
+    <div class="form-card">
+      <form id="add-form">
+        <div class="input-group">
+          <input type="text" id="name" placeholder=" " required>
+          <label>Ф.И.О.</label>
+        </div>
+        
+        <div class="input-group">
+          <input type="text" id="dept" placeholder=" " required>
+          <label>Отдел</label>
+        </div>
+        
+        <div class="input-group">
+          <input type="text" id="position" placeholder=" " required>
+          <label>Должность</label>
+        </div>
+        
+        <div class="form-row">
+          <div class="input-group">
+            <input type="date" id="start" required>
+            <label>Дата начала</label>
+          </div>
+          
+          <div class="input-group">
+            <input type="date" id="end">
+            <label>Дата окончания</label>
+          </div>
+        </div>
+        
+        <div class="input-group">
+          <select id="type" required>
+            <option value=""></option>
+            <option value="договор">Договор</option>
+            <option value="контракт">Контракт</option>
+            <option value="срочный">Срочный</option>
+          </select>
+          <label>Тип контракта</label>
+        </div>
+        
+        <button type="submit" class="submit-btn">
+          <span>Добавить сотрудника</span>
+        </button>
+      </form>
+      
+      <div id="form-message"></div>
+    </div>
+    
+    <a href="employees.html" class="back-btn">← Назад к списку</a>
+  </div>
+</main>
+<footer>
+  <p>© 2025 Отдел кадров предприятия</p>
+</footer>
+</body>
+</html>
