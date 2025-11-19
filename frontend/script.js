@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', function() {
       if (siteContent) siteContent.classList.remove('blur');
     }
   }
-
   checkAdmin();
 
   // Вход
@@ -28,9 +27,7 @@ document.addEventListener('DOMContentLoaded', function() {
       const loginError = document.getElementById('login-error');
       
       if (username && password) {
-        const u = username.value;
-        const p = password.value;
-        if (u === 'admin' && p === 'admin123') {
+        if (username.value === 'admin' && password.value === 'admin123') {
           sessionStorage.setItem('adminLoggedIn', 'true');
           loginModal.style.display = 'none';
           if (siteContent) siteContent.classList.remove('blur');
@@ -41,13 +38,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Загрузка сотрудников из БД
+  // Загрузка сотрудников
   async function loadEmployees() {
     try {
       const res = await fetch('/api/employees');
       if (!res.ok) throw new Error('Ошибка сервера');
       employees = await res.json();
-      console.log('Загружено сотрудников:', employees.length);
     } catch (error) {
       console.error('Ошибка загрузки:', error);
       employees = JSON.parse(localStorage.getItem('employees')) || [];
@@ -68,9 +64,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!table) return;
     table.innerHTML = '';
 
-    employees.forEach(function(e, index) {
+    employees.forEach((e, index) => {
       const tr = document.createElement('tr');
-      
       const startDate = e.start_date ? e.start_date.slice(0, 10) : '';
       const endDate = e.end_date ? e.end_date.slice(0, 10) : '—';
 
@@ -87,8 +82,8 @@ document.addEventListener('DOMContentLoaded', function() {
       table.appendChild(tr);
     });
 
-    // Обработчики удаления
-    document.querySelectorAll('.delete-btn').forEach(function(btn) {
+    // Удаление сотрудников
+    document.querySelectorAll('.delete-btn').forEach(btn => {
       btn.addEventListener('click', async function(e) {
         const index = e.target.dataset.index;
         const emp = employees[index];
@@ -97,9 +92,9 @@ document.addEventListener('DOMContentLoaded', function() {
         renderTable();
         if (emp.id) {
           try {
-            await fetch('/api/employees/' + emp.id, { method: 'DELETE' });
-          } catch (error) {
-            console.error('Ошибка удаления:', error);
+            await fetch(`/api/employees/${emp.id}`, { method: 'DELETE' });
+          } catch (err) {
+            console.error('Ошибка удаления:', err);
           }
         }
       });
@@ -115,15 +110,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const today = new Date();
     let hasExpiring = false;
 
-    employees.forEach(function(e) {
+    employees.forEach(e => {
       if (!e.end_date) return;
       const end = new Date(e.end_date);
       const diff = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
-
-      if (diff < 30 && diff > 0) {
+      if (diff > 0 && diff < 30) {
         const d = document.createElement('div');
         d.classList.add('alert');
-        d.textContent = 'Контракт ' + (e.name || '') + ' истекает через ' + diff + ' дней';
+        d.textContent = `Контракт ${e.name || ''} истекает через ${diff} дней`;
         alerts.appendChild(d);
         hasExpiring = true;
       }
@@ -134,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // Отчёты
+  // Инициализация отчётов
   function initReports() {
     const form = document.getElementById('report-form');
     const table = document.querySelector('#report-table tbody');
@@ -142,33 +136,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
     form.addEventListener('submit', function(e) {
       e.preventDefault();
-
       const startDateInput = document.getElementById('startDate');
       const endDateInput = document.getElementById('endDate');
-      
       if (!startDateInput || !endDateInput) return;
 
       const s = new Date(startDateInput.value);
       const e2 = new Date(endDateInput.value);
 
-      const filtered = employees.filter(function(emp) {
+      const filtered = employees.filter(emp => {
         if (!emp.start_date) return false;
         const d = new Date(emp.start_date);
         return d >= s && d <= e2;
       });
 
       table.innerHTML = '';
-
       if (filtered.length === 0) {
         table.innerHTML = '<tr><td colspan="5">Нет сотрудников за выбранный период.</td></tr>';
         return;
       }
 
-      filtered.forEach(function(e) {
+      filtered.forEach(e => {
         const tr = document.createElement('tr');
         const startDate = e.start_date ? e.start_date.slice(0, 10) : '';
         const endDate = e.end_date ? e.end_date.slice(0, 10) : '—';
-        
         tr.innerHTML = `
           <td>${e.name || ''}</td>
           <td>${e.dept || ''}</td>
@@ -181,56 +171,24 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // ОТЧЕТ PDF
-  function initPdfReport() {
-    const pdfBtn = document.getElementById('pdf-btn');
-    if (!pdfBtn) return;
-    
-    pdfBtn.addEventListener('click', function() {
-      const startDateInput = document.getElementById('startDate');
-      const endDateInput = document.getElementById('endDate');
-      
-      if (!startDateInput || !endDateInput) return;
-      
-      const startDate = startDateInput.value;
-      const endDate = endDateInput.value;
-      
-      if (!startDate || !endDate) {
-        alert('Выберите начальную и конечную даты');
-        return;
-      }
-      
-      window.open('/api/reports/pdf?startDate=' + startDate + '&endDate=' + endDate, '_blank');
-    });
-  }
-
-  // Обработчик для страницы добавления
+  // Страница добавления сотрудника
   function initAddEmployeePage() {
     const form = document.getElementById('add-form');
     const messageDiv = document.getElementById('form-message');
-    
     if (!form || !messageDiv) return;
-    
+
     form.addEventListener('submit', async function(e) {
       e.preventDefault();
-      
-      const nameInput = document.getElementById('name');
-      const deptInput = document.getElementById('dept');
-      const positionInput = document.getElementById('position');
-      const startInput = document.getElementById('start');
-      const endInput = document.getElementById('end');
-      const typeInput = document.getElementById('type');
-      
-      if (!nameInput || !deptInput || !positionInput || !startInput || !typeInput) return;
-      
-      const emp = {
-        name: nameInput.value,
-        dept: deptInput.value,
-        position: positionInput.value,
-        start_date: startInput.value,
-        end_date: endInput ? endInput.value || null : null,
-        contract_type: typeInput.value
-      };
+      const name = document.getElementById('name')?.value;
+      const dept = document.getElementById('dept')?.value;
+      const position = document.getElementById('position')?.value;
+      const start_date = document.getElementById('start')?.value;
+      const end_date = document.getElementById('end')?.value || null;
+      const contract_type = document.getElementById('type')?.value;
+
+      if (!name || !dept || !position || !start_date || !contract_type) return;
+
+      const emp = { name, dept, position, start_date, end_date, contract_type };
 
       try {
         const res = await fetch('/api/employees', {
@@ -238,45 +196,21 @@ document.addEventListener('DOMContentLoaded', function() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(emp)
         });
-
         if (!res.ok) throw new Error('Ошибка сервера');
 
-        messageDiv.innerHTML = `
-          <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 5px; border: 1px solid #c3e6cb;">
-            ✅ Сотрудник успешно добавлен!
-          </div>
-        `;
-        
+        messageDiv.innerHTML = `<div class="success-message">✅ Сотрудник успешно добавлен!</div>`;
         form.reset();
-        setTimeout(function() {
-          window.location.href = 'employees.html';
-        }, 2000);
-        
-      } catch (error) {
-        console.error('Ошибка:', error);
-        messageDiv.innerHTML = `
-          <div style="background: #f8d7da; color: #721c24; padding: 15px; border-radius: 5px; border: 1px solid #f5c6cb;">
-            ❌ Ошибка при добавлении сотрудника
-          </div>
-        `;
-        
-        // Fallback на localStorage
-        try {
-          const localEmployees = JSON.parse(localStorage.getItem('employees')) || [];
-          localEmployees.push(emp);
-          localStorage.setItem('employees', JSON.stringify(localEmployees));
-          
-          messageDiv.innerHTML = `
-            <div style="background: #d4edda; color: #155724; padding: 15px; border-radius: 5px; border: 1px solid #c3e6cb;">
-              ✅ Сотрудник добавлен в локальное хранилище!
-            </div>
-          `;
-          setTimeout(function() {
-            window.location.href = 'employees.html';
-          }, 3000);
-        } catch (localError) {
-          console.error('Локальная ошибка:', localError);
-        }
+        setTimeout(() => window.location.href = 'employees.html', 2000);
+      } catch (err) {
+        console.error('Ошибка:', err);
+        messageDiv.innerHTML = `<div class="error-message">❌ Ошибка при добавлении сотрудника</div>`;
+
+        // fallback localStorage
+        const localEmployees = JSON.parse(localStorage.getItem('employees')) || [];
+        localEmployees.push(emp);
+        localStorage.setItem('employees', JSON.stringify(localEmployees));
+        messageDiv.innerHTML = `<div class="success-message">✅ Сотрудник добавлен в локальное хранилище!</div>`;
+        setTimeout(() => window.location.href = 'employees.html', 3000);
       }
     });
   }

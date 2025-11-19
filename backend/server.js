@@ -77,62 +77,80 @@ app.delete('/api/employees/:id', (req, res) => {
 app.get('/api/reports/pdf', (req, res) => {
   const { startDate, endDate } = req.query;
   console.log('Генерация PDF:', startDate, 'до', endDate);
-  
+
   db.query(
-    'SELECT * FROM employees WHERE start_date BETWEEN ? AND ?',
-    [startDate, endDate],
+    `SELECT * FROM employees WHERE start_date >= ? AND start_date <= ?`,
+    [endDate, startDate],
     (err, results) => {
       if (err) {
         console.error('Ошибка PDF:', err);
         return res.status(500).json({ error: err.message });
       }
-      
+
       try {
-        const doc = new PDFDocument();
-        
+        const doc = new PDFDocument({ margin: 50 });
+
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename=report-${startDate}-to-${endDate}.pdf`);
-        
+        res.setHeader(
+          'Content-Disposition',
+          `attachment; filename=report-${startDate}-to-${endDate}.pdf`
+        );
+
         doc.pipe(res);
+
+        doc.registerFont('Arial', path.join(__dirname, 'fonts', 'arial.ttf'));
+        doc.registerFont('Arial-Bold', path.join(__dirname, 'fonts', 'arialbd.ttf'));
+
+        doc.font('Arial-Bold')
+           .fontSize(20)
+           .text('ОТЧЕТ ПО СОТРУДНИКАМ', { align: 'center' });
+        doc.moveDown();
         
-        doc.font('Helvetica');
-        
-        doc.fontSize(20).text('ОТЧЕТ ПО СОТРУДНИКАМ', 50, 50);
-        doc.fontSize(12).text(`Период: с ${startDate} по ${endDate}`, 50, 80);
-        
-        doc.moveTo(50, 100).lineTo(550, 100).stroke();
-        
-        let yPosition = 120;
-        
+        doc.font('Arial')
+           .fontSize(12)
+           .text(`Период: с ${startDate} по ${endDate}`, { align: 'center' });
+        doc.moveDown(1.5);
+        doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+
+        let yPosition = doc.y + 10;
+
         if (results.length === 0) {
-          doc.fontSize(14).text('Нет сотрудников за выбранный период', 50, yPosition);
+          doc.font('Arial')
+             .fontSize(14)
+             .text('Нет сотрудников за выбранный период', 50, yPosition);
         } else {
           results.forEach((employee, index) => {
-            if (yPosition > 700) {
+            // Перенос на новую страницу
+            if (yPosition > 650) {
               doc.addPage();
               yPosition = 50;
             }
-            
-            doc.fontSize(14).text(`${index + 1}. ${employee.name}`, 50, yPosition);
-            doc.fontSize(10);
-            doc.text(`Отдел: ${employee.dept}`, 70, yPosition + 20);
-            doc.text(`Должность: ${employee.position}`, 70, yPosition + 35);
-            doc.text(`Дата начала: ${employee.start_date}`, 70, yPosition + 50);
-            
-            if (employee.end_date) {
-              doc.text(`Дата окончания: ${employee.end_date}`, 70, yPosition + 65);
-            }
-            
-            doc.text(`Тип контракта: ${employee.contract_type}`, 70, yPosition + 80);
-            
+
+            // Имя сотрудника - жирный
+            doc.font('Arial-Bold')
+               .fontSize(14)
+               .text(`${index + 1}. ${employee.name}`, 50, yPosition);
+
+            // Детали - обычный
+            doc.font('Arial')
+               .fontSize(10)
+               .text(
+                 `Отдел: ${employee.dept || '—'}
+Должность: ${employee.position || '—'}
+Дата начала: ${employee.start_date || '—'}
+Дата окончания: ${employee.end_date || '—'}
+Тип контракта: ${employee.contract_type || '—'}`,
+                 70,
+                 yPosition + 20
+               );
+
             doc.moveTo(50, yPosition + 100).lineTo(550, yPosition + 100).stroke();
-            
+
             yPosition += 120;
           });
         }
-        
+
         doc.end();
-        
       } catch (pdfError) {
         console.error('Ошибка создания PDF:', pdfError);
         res.status(500).json({ error: 'Ошибка генерации PDF' });
