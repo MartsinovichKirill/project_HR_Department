@@ -19,6 +19,82 @@ const db = mysql.createPool({
   password: 'Alecseevich098511-', 
   database: 'employees_db'
 });
+let employees = [];
+let departments = [];
+
+// Функция для модального окна с действиями по контракту
+function showContractActionModal(employeeName, daysLeft, employeeId) {
+  const modalHTML = `
+    <div id="contract-action-modal" class="modal">
+      <div class="modal-content" style="width: 400px;">
+        <h3>Контракт истекает</h3>
+        <p>Контракт сотрудника <strong>${employeeName}</strong> истекает через ${daysLeft} дней.</p>
+        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+          <button onclick="extendContract(${employeeId})" style="background: #28a745;">
+            📝 Продлить контракт
+          </button>
+          <button onclick="initiateDismissal(${employeeId})" style="background: #dc3545;">
+            🗑️ Уволить сотрудника
+          </button>
+          <button onclick="closeContractModal()" style="background: #6c757d;">
+            Отложить
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function closeContractModal() {
+  const modal = document.getElementById('contract-action-modal');
+  if (modal) modal.remove();
+}
+
+async function extendContract(employeeId) {
+  const newEndDate = prompt('Введите новую дату окончания (YYYY-MM-DD):');
+  if (!newEndDate) return;
+  
+  try {
+    const res = await fetch(`/api/employees/${employeeId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ end_date: newEndDate })
+    });
+    
+    if (res.ok) {
+      alert('Контракт успешно продлен!');
+      loadEmployees();
+    }
+  } catch (err) {
+    console.error('Ошибка продления:', err);
+  } finally {
+    closeContractModal();
+  }
+}
+
+async function initiateDismissal(employeeId) {
+  if (confirm('Вы уверены, что хотите уволить сотрудника?')) {
+    const dismissalDate = new Date().toISOString().split('T')[0];
+    
+    try {
+      const res = await fetch(`/api/employees/${employeeId}/dismiss`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dismissal_date: dismissalDate })
+      });
+      
+      if (res.ok) {
+        alert('Сотрудник уволен');
+        loadEmployees();
+      }
+    } catch (err) {
+      console.error('Ошибка увольнения:', err);
+    }
+  }
+  closeContractModal();
+}
 
 // Проверка подключения
 db.getConnection((err) => {
@@ -157,6 +233,118 @@ app.get('/api/reports/pdf', (req, res) => {
       }
     }
   );
+});
+app.get('/api/employees/expiring/:date', (req, res) => {
+  const { date } = req.params;
+  db.query(
+    `SELECT * FROM employees 
+     WHERE end_date IS NOT NULL 
+     AND end_date <= ? 
+     AND end_date > CURDATE()
+     ORDER BY end_date ASC`,
+    [date],
+    (err, results) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(results);
+    }
+  );
+});
+
+// Получить сотрудников по отделу, принятых после даты
+app.get('/api/employees/hired-after/:date', (req, res) => {
+  const { date } = req.params;
+  const { department } = req.query;
+  
+  let query = 'SELECT * FROM employees WHERE start_date > ?';
+  const params = [date];
+  
+  if (department && department !== 'all') {
+    query += ' AND dept = ?';
+    params.push(department);
+  }
+  
+  query += ' ORDER BY dept, start_date';
+  
+  db.query(query, params, (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results);
+  });
+});
+
+//Получить статистику по отделам
+app.get('/api/statistics/departments', (req, res) => {
+  db.query(
+    `SELECT dept, 
+            COUNT(*) as total,
+            SUM(CASE WHEN end_date IS NULL OR end_date > CURDATE() THEN 1 ELSE 0 END) as active,
+            SUM(CASE WHEN end_date IS NOT NULL AND end_date <= CURDATE() THEN 1 ELSE 0 END) as inactive
+     FROM employees 
+     GROUP BY dept`,
+    (err, results) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(results);
+    }
+  );
+});
+
+//Получить информацию о сотруднике за период
+app.get('/api/employees/:id/period', (req, res) => {
+  const { id } = req.params;
+  const { startDate, endDate } = req.query;
+  
+  db.query(
+    `SELECT * FROM employees 
+     WHERE id = ? 
+     AND start_date <= ? 
+     AND (end_date IS NULL OR end_date >= ?)`,
+    [id, endDate, startDate],
+    (err, results) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(results[0] || null);
+    }
+  );
+});
+
+//Обновить сотрудника (для редактирования)
+app.put('/api/employees/:id', (req, res) => {
+  const { id } = req.params;
+  const updates = req.body;
+  
+  const fields = Object.keys(updates).map(key => `${key} = ?`).join(', ');
+  const values = Object.values(updates);
+  values.push(id);
+  
+  db.query(
+    `UPDATE employees SET ${fields} WHERE id = ?`,
+    values,
+    (err) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ success: true });
+    }
+  );
+});
+
+//Уволить сотрудника
+app.post('/api/employees/:id/dismiss', (req, res) => {
+  const { id } = req.params;
+  const { dismissal_date } = req.body;
+  
+  db.query(
+    'UPDATE employees SET end_date = ? WHERE id = ?',
+    [dismissal_date, id],
+    (err) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json({ success: true });
+    }
+  );
+});
+
+//Получить уникальные отделы
+app.get('/api/departments', (req, res) => {
+  db.query('SELECT DISTINCT dept FROM employees ORDER BY dept', (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(results.map(r => r.dept));
+  });
 });
 
 // HTML страницы
