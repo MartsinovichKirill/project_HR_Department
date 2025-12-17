@@ -2,6 +2,10 @@ document.addEventListener('DOMContentLoaded', function() {
   let employees = [];
   const siteContent = document.getElementById('site-content');
   const loginModal = document.getElementById('login-modal');
+   loadEmployees();
+  initAddEmployeePage();
+  initPdfReport();
+  initContractValidation();
 
   // Проверка админа 
   function checkAdmin() {
@@ -213,6 +217,77 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => window.location.href = 'employees.html', 3000);
       }
     });
+    function initContractValidation() {
+  const startInput = document.getElementById('start');
+  const endInput = document.getElementById('end');
+  const typeSelect = document.getElementById('type');
+  const validationDiv = document.getElementById('contract-validation');
+  
+  if (!startInput || !endInput || !typeSelect || !validationDiv) return;
+  
+  // Функция валидации
+  async function validateContract() {
+    const start_date = startInput.value;
+    const end_date = endInput.value;
+    const contract_type = typeSelect.value;
+    
+    // Если не все поля заполнены, не валидируем
+    if (!start_date || !end_date || !contract_type) {
+      validationDiv.innerHTML = '';
+      return;
+    }
+    
+    // Проверка, что дата окончания не раньше даты начала
+    if (new Date(end_date) < new Date(start_date)) {
+      validationDiv.innerHTML = `<div class="error-message">❌ Дата окончания не может быть раньше даты начала</div>`;
+      return false;
+    }
+    
+    try {
+      const res = await fetch('/api/contracts/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ start_date, end_date, contract_type })
+      });
+      
+      const result = await res.json();
+      
+      if (result.valid) {
+        validationDiv.innerHTML = `<div class="success-message">✓ Контракт корректен. Длительность: ${result.duration} месяцев</div>`;
+        return true;
+      } else {
+        validationDiv.innerHTML = `<div class="error-message">❌ ${result.message}</div>`;
+        return false;
+      }
+    } catch (error) {
+      console.error('Ошибка валидации:', error);
+      validationDiv.innerHTML = `<div class="error-message">❌ Ошибка проверки контракта</div>`;
+      return false;
+    }
+  }
+  
+  // Валидация при изменении полей
+  startInput.addEventListener('change', validateContract);
+  endInput.addEventListener('change', validateContract);
+  typeSelect.addEventListener('change', validateContract);
+  
+  // Также валидация при отправке формы
+  const form = document.getElementById('add-form');
+  if (form) {
+    form.addEventListener('submit', async function(e) {
+      // Если есть дата окончания, валидируем
+      if (endInput.value) {
+        const isValid = await validateContract();
+        if (!isValid) {
+          e.preventDefault(); // Отменяем отправку
+          return false;
+        }
+      }
+    });
+  }
+}
+
+     
   }
 
   // Запуск

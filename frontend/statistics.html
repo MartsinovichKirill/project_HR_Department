@@ -17,5 +17,55 @@
     <a href="statistics.html">Статистика</a>
   </nav>
 </header>
+   <label>Тип отчета</label>
+    </div>
+    
+    <div id="department-section" style="display: none; margin-top: 20px;">
+      <div class="input-group">
+        <select id="department-select">
+          <option value="all">Все отделы</option>
+        </select>
+        <label>Отдел</label>
+      </div>
+    </div>
+    
+    <div id="date-section" style="display: none; margin-top: 20px;">
+      <div class="input-group">
+        <input type="date" id="report-date">
+        <label>Дата</label>
+      </div>
+    </div>
+    
+    <div id="period-section" style="display: none; margin-top: 20px;">
+      <div class="form-row">
+        <div class="input-group">
+          <input type="date" id="period-start">
+          <label>Начало периода</label>
+        </div>
+        <div class="input-group">
+          <input type="date" id="period-end">
+          <label>Конец периода</label>
+        </div>
+      </div>
+    </div>
+    
+    <button id="generate-advanced-report" class="submit-btn">Сформировать отчет</button>
+  </div>
+  
+  <div id="advanced-report-result" style="margin-top: 30px; padding: 20px; background: white; border-radius: 8px;">
+    <!-- Результаты отчета появятся здесь -->
+  </div>
+</main>
+
+<footer>
+  <p>© 2025 Отдел кадров предприятия</p>
+</footer>
+
+<script>
+  // Инициализация при загрузке страницы
+  document.addEventListener('DOMContentLoaded', function() {
+    initAdvancedReports();
+  });
+</script>
 </body>
 </html>
