@@ -7,16 +7,52 @@
 </head>
 <body>
 <header>
-  <h1>Статистика отдела кадров</h1>
-  <nav>
-    <a href="index.html">Главная</a>
-    <a href="employees.html">Сотрудники</a>
-    <a href="add-employee.html">Добавить</a>
-    <a href="contracts.html">Контракты</a>
-    <a href="reports.html">Отчёты</a>
-    <a href="statistics.html">Статистика</a>
-  </nav>
-</header>
+    <h1>Статистика отдела кадров</h1>
+    <nav>
+      <a href="index.html">Главная</a>
+      <a href="employees.html">Сотрудники</a>
+      <a href="add-employee.html">Добавить сотрудника</a>
+      <a href="contracts.html">Контракты</a>
+      <a href="reports.html">Отчёты</a>
+      <a href="statistics.html">Статистика</a>
+    </nav>
+  </header>
+<section class="stats-panel">
+    <div class="stat-card">
+      <h3>Всего сотрудников</h3>
+      <div class="number" id="total-employees">0</div>
+      <div class="label">в системе</div>
+    </div>
+    
+    <div class="stat-card">
+      <h3>Активные</h3>
+      <div class="number" id="active-employees">0</div>
+      <div class="label">работают сейчас</div>
+    </div>
+    
+    <div class="stat-card">
+      <h3>Контракты истекают</h3>
+      <div class="number" id="expiring-contracts">0</div>
+      <div class="label">в ближайший месяц</div>
+    </div>
+    
+    <div class="stat-card">
+      <h3>Отделы</h3>
+      <div class="number" id="total-departments">0</div>
+      <div class="label">всего отделов</div>
+    </div>
+  </section>
+  
+  <section class="search-section">
+    <h2>Расширенные отчеты</h2>
+    
+    <div class="input-group" style="max-width: 300px; margin-bottom: 20px;">
+      <select id="report-type">
+        <option value="">Выберите тип отчета</option>
+        <option value="department-hired">Сотрудники по отделам (принятые после даты)</option>
+        <option value="expiring-contracts">Контракты, истекающие до даты</option>
+        <option value="employee-period">Информация о сотруднике за период</option>
+        </select>
    <label>Тип отчета</label>
     </div>
     
@@ -60,12 +96,5 @@
 <footer>
   <p>© 2025 Отдел кадров предприятия</p>
 </footer>
-
-<script>
-  // Инициализация при загрузке страницы
-  document.addEventListener('DOMContentLoaded', function() {
-    initAdvancedReports();
-  });
-</script>
 </body>
 </html>

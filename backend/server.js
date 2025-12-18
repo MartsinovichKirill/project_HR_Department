@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const cors = require('cors');
 const PDFDocument = require('pdfkit'); // ДОБАВЬТЕ ЭТУ СТРОКУ
+const fs = require('fs');
 
 const app = express();
 const PORT = 3000;
@@ -95,7 +96,55 @@ async function initiateDismissal(employeeId) {
   }
   closeContractModal();
 }
+// Добавьте эндпоинт для валидации контрактов (требуется по ТЗ):
+app.post('/api/contracts/validate', (req, res) => {
+  const { start_date, end_date, contract_type } = req.body;
+  
+  if (!start_date || !end_date || !contract_type) {
+    return res.status(400).json({ valid: false, message: 'Все поля обязательны' });
+  }
+  
+  const start = new Date(start_date);
+  const end = new Date(end_date);
+  
+  // Проверка что дата окончания позже даты начала
+  if (end <= start) {
+    return res.json({ 
+      valid: false, 
+      message: 'Дата окончания должна быть позже даты начала' 
+    });
+  }
+  
+  // Рассчитать разницу в месяцах
+  const monthsDiff = (end.getFullYear() - start.getFullYear()) * 12 
+    + (end.getMonth() - start.getMonth());
+  
+  // Проверка ограничений по ТЗ
+  if (contract_type === 'договор' && monthsDiff > 12) {
+    return res.json({ 
+      valid: false, 
+      message: 'Договор не может быть больше 1 года' 
+    });
+  }
+  
+  if (contract_type === 'контракт' && (monthsDiff < 12 || monthsDiff > 60)) {
+    return res.json({ 
+      valid: false, 
+      message: 'Контракт должен быть от 1 до 5 лет' 
+    });
+  }
+  
+  return res.json({ 
+    valid: true, 
+    duration: monthsDiff,
+    message: 'Контракт корректен' 
+  });
+});
 
+// Добавьте обработку для statistics.html:
+app.get('/statistics.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/statistics.html'));
+});
 // Проверка подключения
 db.getConnection((err) => {
   if (err) {
